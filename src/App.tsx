@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-import Navbar from "../src/components/main/navbar";
-import HomePage from "./components/main/Homepage";
+import Navbar from "../src/components/main/Navbar";
+import HomePageCopy from "./components/main/HomePageCopy";
 
 function App() {
     return (
         <>
-            <Navbar></Navbar>
-            <HomePage />
+            <Navbar />
+            <HomePageCopy />
         </>
     );
 }
