@@ -8,6 +8,7 @@ const HomePage: React.FC = () => {
     const [targetLanguage, setTargetLanguage] = useState<string>("ar");
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [translatedText, setTranslatedText] = useState<string>("");
+    const [transcribedText, setTranscribedText] = useState<string>("");
 
     const handleTranslation = () => {
         const requestData = {
@@ -34,7 +35,31 @@ const HomePage: React.FC = () => {
         const file = event.target.files?.[0];
         if (file) {
             setUploadedFile(file);
+            handleSpeechToText(file);
         }
+    };
+
+    const handleSpeechToText = (file: File) => {
+        const formData = new FormData();
+        formData.append("audio", file);
+
+        const headers = {
+            "Content-Type": "multipart/form-data",
+        };
+
+        apiClient
+            .post("speech/", formData, { headers })
+            .then((response) => {
+                if (response.data.transcription) {
+                    setTranscribedText(response.data.transcription);
+                } else {
+                    alert("Transcription failed. Please try again.");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while transcribing.");
+            });
     };
 
     const handleRecord = () => {
@@ -109,6 +134,14 @@ const HomePage: React.FC = () => {
                         <p className="mt-4 text-gray-600">
                             Uploaded File: {uploadedFile.name}
                         </p>
+                    )}
+                    {transcribedText && (
+                        <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h3 className="text-lg font-semibold text-gray-600">
+                                Transcribed Text:
+                            </h3>
+                            <p className="text-gray-800">{transcribedText}</p>
+                        </div>
                     )}
                 </div>
             </div>
