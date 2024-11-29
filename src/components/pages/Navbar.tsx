@@ -1,7 +1,10 @@
+import DarkModeToggle from "../DarkModeToggle";
+import "./global.css";
+
 const Navbar = () => {
     return (
-        <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-800">
-            <div className="container flex flex-wrap justify-between items-center mx-auto">
+        <nav className="border-border px-2 sm:px-4 py-2.5 rounded bg-background">
+            <div className="container flex flex-wrap justify-between items-center mx-auto bg-background">
                 <a href="#" className="flex">
                     <svg
                         className="mr-3 h-10"
@@ -22,7 +25,7 @@ const Navbar = () => {
                             fill="#1C64F2"
                         />
                     </svg>
-                    <span className="self-center text-lg font-semibold whitespace-nowrap dark:text-white">
+                    <span className="self-center text-lg font-semibold whitespace-nowrap bg-background">
                         Vocalearn
                     </span>
                 </a>
@@ -89,7 +92,9 @@ const Navbar = () => {
                                 Pronunciation
                             </a>
                         </li>
-                        <li></li>
+                        <li>
+                            <DarkModeToggle />
+                        </li>
                     </ul>
                 </div>
             </div>
