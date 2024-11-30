@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React from "react";
 import TextTranslation from "./TextTranslation";
 import SpeechToText from "./SpeechToText";
-import "./global.css";
+// import "./global.css";
+import "@/index.css";
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
     return (
         <>
             <div className="flex flex-col items-center min-h-screen bg-background text-foreground p-4 mt-2">

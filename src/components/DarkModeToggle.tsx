@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { DarkModeSwitch } from "react-toggle-dark-mode";
 
 const DarkModeToggle: React.FC = () => {
     const [darkMode, setDarkMode] = useState<boolean>(
@@ -15,13 +16,16 @@ const DarkModeToggle: React.FC = () => {
         }
     }, [darkMode]);
 
+    const toggleDarkMode = (checked: boolean) => {
+        setDarkMode(checked);
+    };
+    console.log("Dark mode state:", darkMode);
     return (
-        <button
-            onClick={() => setDarkMode((prev) => !prev)}
-            className="bg-secondary text-secondary-foreground rounded"
-        >
-            {darkMode ? "Light Mode" : "Dark Mode"}
-        </button>
+        <DarkModeSwitch
+            checked={darkMode}
+            onChange={toggleDarkMode}
+            size={16}
+        />
     );
 };
 
