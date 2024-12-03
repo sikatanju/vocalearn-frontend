@@ -80,6 +80,9 @@ const Navbar = () => {
                                     Pronunciation
                                 </DropdownMenuItem>
                             </Link>
+                            <DropdownMenuItem>
+                                <DarkModeToggle />
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
