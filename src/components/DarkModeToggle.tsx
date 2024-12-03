@@ -19,7 +19,7 @@ const DarkModeToggle: React.FC = () => {
     const toggleDarkMode = (checked: boolean) => {
         setDarkMode(checked);
     };
-    console.log("Dark mode state:", darkMode);
+    // console.log("Dark mode state:", darkMode);
     return (
         <DarkModeSwitch
             checked={darkMode}

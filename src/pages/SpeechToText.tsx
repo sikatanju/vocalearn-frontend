@@ -1,14 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import "@/index.css";
-import apiClient from "@/services/apiClient";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
+
+import apiClient from "@/services/apiClient";
+
+import "@/index.css";
 
 const SpeechToText = () => {
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [transcribedText, setTranscribedText] = useState<string>("");
     const [fileError, setFileError] = useState<boolean>(false);
+    const [isError, setError] = useState<boolean>(false);
+    const [erroMessage, setErrorMessage] = useState<string>("");
 
     const isFileEmpty = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -17,6 +22,13 @@ const SpeechToText = () => {
             return true;
         }
         return false;
+    };
+
+    const resetError = () => {
+        setTimeout(() => {
+            setError(false);
+            setErrorMessage("");
+        }, 5000);
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,6 +47,7 @@ const SpeechToText = () => {
         const formData = new FormData();
         if (uploadedFile === null) {
             setFileError(true);
+            resetError();
             return;
         }
 
@@ -49,12 +62,21 @@ const SpeechToText = () => {
                 if (response.data.transcription) {
                     setTranscribedText(response.data.transcription);
                 } else {
-                    alert("Transcription failed. Please try again.");
+                    setError(true);
+                    setErrorMessage(
+                        "Sorry, couldn't get the translation, please try again later."
+                    );
+                    resetError();
                 }
             })
             .catch((error) => {
-                console.error("Error:", error);
-                alert("An error occurred while transcribing.");
+                setError(true);
+                if (error.message == "Network Error") {
+                    setErrorMessage("Network error, please try again later.");
+                } else {
+                    setErrorMessage(error.message);
+                }
+                resetError();
             });
     };
 
@@ -74,14 +96,17 @@ const SpeechToText = () => {
                             className="w-64 max-w-md text-sm text-card-foreground bg-input border border-border rounded-lg cursor-pointer focus:outline-none focus:ring focus:ring-accent focus:ring-opacity-50 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-primary file:text-primary-foreground file:cursor-pointer hover:file:bg-opacity-90"
                         />
                         {fileError && (
-                            <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertTitle>Error</AlertTitle>
-                                <AlertDescription>
-                                    Please choose a file
-                                </AlertDescription>
-                            </Alert>
+                            <div className="w-1/2">
+                                <Alert variant="destructive">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertTitle>Error</AlertTitle>
+                                    <AlertDescription>
+                                        Please choose a file
+                                    </AlertDescription>
+                                </Alert>
+                            </div>
                         )}
+
                         <Button
                             onClick={() => handleSpeechToText()}
                             className="w-64 max-w-xs bg-primary text-primary-foreground font-medium px-4 py-2 rounded-lg shadow-sm hover:bg-opacity-90 focus:ring focus:ring-accent focus:ring-opacity-50 transition"
@@ -95,6 +120,17 @@ const SpeechToText = () => {
                                     {uploadedFile.name}
                                 </span>
                             </p>
+                        )}
+                        {isError && (
+                            <div className="w-1/2">
+                                <Alert variant="destructive">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertTitle>Error</AlertTitle>
+                                    <AlertDescription>
+                                        {erroMessage}
+                                    </AlertDescription>
+                                </Alert>
+                            </div>
                         )}
                         {transcribedText && (
                             <div className="w-full max-w-md mt-6 p-4 bg-muted border border-border rounded-lg shadow-sm">
