@@ -4,6 +4,8 @@ import ErrorPage from "./pages/ErrorPage";
 import HomePage from "./pages/HomePage";
 import SpeechToText from "./pages/SpeechToText";
 import Layout from "./pages/Layout";
+import SpeechToTextRefined from "./pages/SpeechToTextRefined";
+import AudioRecorderrs from "./components/AudioRecorderrs";
 
 const router = createBrowserRouter([
     {
@@ -12,7 +14,7 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         children: [
             { index: true, element: <HomePage /> },
-            { path: "/speech-to-text", element: <SpeechToText /> },
+            { path: "/speech-to-text", element: <SpeechToTextRefined /> },
         ],
     },
 ]);
