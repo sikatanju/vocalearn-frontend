@@ -3,18 +3,30 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
-import HashLoader from "react-spinners/HashLoader";
 
 import apiClient from "@/services/apiClient";
 
 import "@/index.css";
 import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 import LoaderComponent from "@/components/LoaderComponent";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+
+import languages from "@/data/speech_to_text";
 
 const SpeechToTextRefined = () => {
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [transcribedText, setTranscribedText] = useState<string>("");
+    const [targetLanguage, setTargetLanguage] = useState<string>("");
     const [fileError, setFileError] = useState<boolean>(false);
+
     const [isError, setError] = useState<boolean>(false);
     const [erroMessage, setErrorMessage] = useState<string>("");
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -40,6 +52,23 @@ const SpeechToTextRefined = () => {
         return false;
     };
 
+    const isLanguageEmpty = () => {
+        if (targetLanguage.length <= 0) {
+            setError(true);
+            setErrorMessage("Please select a Language.");
+            resetError();
+            return true;
+        }
+        return false;
+    };
+
+    const getCleanLanguage = () => {
+        if (targetLanguage.endsWith("custom"))
+            return targetLanguage.replace("custom", "");
+
+        return targetLanguage;
+    };
+
     const resetError = () => {
         setTimeout(() => {
             setError(false);
@@ -60,7 +89,9 @@ const SpeechToTextRefined = () => {
     };
 
     const handleSpeechToText = () => {
+        if (isLanguageEmpty()) return;
         const formData = new FormData();
+
         if (uploadedFile === null) {
             setFileError(true);
             resetError();
@@ -69,13 +100,12 @@ const SpeechToTextRefined = () => {
 
         if (uploadedFile !== null) {
             formData.append("audio", uploadedFile);
+            formData.append("target_language", getCleanLanguage());
         }
-
-        setLoading(true);
         const headers = {
             "Content-Type": "multipart/form-data",
         };
-
+        setLoading(true);
         apiClient
             .post("speech/", formData, { headers })
             .then((response) => {
@@ -102,8 +132,17 @@ const SpeechToTextRefined = () => {
     };
 
     const uploadAudio = async (audioBlob: Blob) => {
+        if (isLanguageEmpty()) return;
+        // let targetLang = "";
+        // if (targetLanguage.endsWith("custom")) {
+        //     targetLang = targetLanguage.replace("custom", "");
+        //     console.log(targetLang);
+        // }
+
         const formData = new FormData();
+
         formData.append("audio", audioBlob, "recording.wav");
+        formData.append("target_language", getCleanLanguage());
 
         const headers = {
             "Content-Type": "multipart/form-data",
@@ -148,7 +187,7 @@ const SpeechToTextRefined = () => {
                     <h2 className="text-2xl font-bold text-card-foreground mb-6 text-center">
                         Speech to Text
                     </h2>
-                    <h3 className="text-2xl font-bold text-card-foreground mb-6 text-center">
+                    <h3 className="text-lg font-bold text-card-foreground mb-6 text-center">
                         Record audio or Upload an audio file (.wav or pcm format
                         for audio file)
                     </h3>
@@ -172,6 +211,7 @@ const SpeechToTextRefined = () => {
                                 <Button
                                     className="mb-5 mt-3"
                                     onClick={() => {
+                                        if (isLanguageEmpty()) return;
                                         recorderControl.startRecording();
                                         setStopRecordingVisible(true);
                                     }}
@@ -183,6 +223,7 @@ const SpeechToTextRefined = () => {
                                 <Button
                                     className="mb-5 mt-3"
                                     onClick={() => {
+                                        if (isLanguageEmpty()) return;
                                         recorderControl.stopRecording();
                                         setStopRecordingVisible(false);
                                     }}
@@ -192,7 +233,57 @@ const SpeechToTextRefined = () => {
                             )}
                         </div>
                     </div>
-                    <hr />
+                    <div className="flex flex-col items-center space-y-6 mt-5">
+                        <Select
+                            onValueChange={(value) => setTargetLanguage(value)}
+                        >
+                            <SelectTrigger className="w-auto sm:w-[180px] bg-input text-foreground border border-border rounded-md p-2 focus:ring focus:ring-accent focus:ring-opacity-50">
+                                <SelectValue placeholder="Select Language" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Top Languages</SelectLabel>
+                                    <SelectItem value="ar-PScustom">
+                                        "Arabic (Palestinian Authority)"
+                                    </SelectItem>
+                                    <SelectItem value="ar-SAcustom">
+                                        Arabic (Saudi Arabia)
+                                    </SelectItem>
+                                    <SelectItem value="bn-INcustom">
+                                        Bengali
+                                    </SelectItem>
+                                    <SelectItem value="en-GBcustom">
+                                        English (United Kingdom)
+                                    </SelectItem>
+                                    <SelectItem value="en-UScustom">
+                                        English (United States)
+                                    </SelectItem>
+
+                                    <SelectItem value="ja-JPcustom">
+                                        Japanese (Japan)
+                                    </SelectItem>
+                                    <SelectItem value="ko-KRcustom">
+                                        Korean (Korea)
+                                    </SelectItem>
+                                    <SelectItem value="ru-RU">
+                                        Russian (Russia)
+                                    </SelectItem>
+                                </SelectGroup>
+                                <SelectGroup>
+                                    <SelectLabel>All Languages</SelectLabel>
+                                    {languages.map((lang) => (
+                                        <SelectItem
+                                            value={lang.language_code}
+                                            key={lang.language_code}
+                                            className="hover:bg-purple-700"
+                                        >
+                                            {lang.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <div className="mt-10 flex flex-col items-center space-y-6">
                         <input
                             required

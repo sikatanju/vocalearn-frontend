@@ -13,10 +13,9 @@ import {
     SelectItem,
 } from "@/components/ui/select";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Loader } from "lucide-react";
-import FadeLoader from "react-spinners/FadeLoader";
-import "@/index.css";
+import { AlertCircle } from "lucide-react";
 import LoaderComponent from "@/components/LoaderComponent";
+import "@/index.css";
 
 const TextTranslation = () => {
     const [translationText, setTranslationText] = useState<string>("");
