@@ -13,13 +13,17 @@ import {
     SelectItem,
 } from "@/components/ui/select";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader } from "lucide-react";
+import FadeLoader from "react-spinners/FadeLoader";
+import "@/index.css";
+import LoaderComponent from "@/components/LoaderComponent";
 
 const TextTranslation = () => {
     const [translationText, setTranslationText] = useState<string>("");
     const [targetLanguage, setTargetLanguage] = useState<string>("");
     const [translatedText, setTranslatedText] = useState<string>("");
 
+    const [isLoading, setLoading] = useState<boolean>(false);
     const [isError, setError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -44,6 +48,7 @@ const TextTranslation = () => {
             resetError();
             return;
         }
+        setLoading(true);
         if (targetLanguage.endsWith("custom")) {
             targetLang = targetLanguage.replace("custom", "");
         }
@@ -69,7 +74,8 @@ const TextTranslation = () => {
                     setErrorMessage("Network error, please try again later.");
                 else setErrorMessage(error.message);
                 resetError();
-            });
+            })
+            .finally(() => setLoading(false));
     };
 
     return (
@@ -89,8 +95,8 @@ const TextTranslation = () => {
                 />
                 <div className="mt-4 flex items-center justify-between">
                     <Select onValueChange={(value) => setTargetLanguage(value)}>
-                        <SelectTrigger className="w-[180px] bg-input text-foreground border border-border rounded-md p-2 focus:ring focus:ring-accent focus:ring-opacity-50">
-                            <SelectValue placeholder="Select a language" />
+                        <SelectTrigger className="w-auto sm:w-[180px] bg-input text-foreground border border-border rounded-md p-2 focus:ring focus:ring-accent focus:ring-opacity-50">
+                            <SelectValue placeholder="Select Language" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
@@ -141,6 +147,9 @@ const TextTranslation = () => {
                         <p className="mt-2">{translatedText}</p>
                     </div>
                 )}
+                <div>
+                    {isLoading && <LoaderComponent isLoading={isLoading} />}
+                </div>
                 <div className="mt-3 w-2/3">
                     {isError && (
                         <Alert variant="destructive">

@@ -2,13 +2,14 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
+import HashLoader from "react-spinners/HashLoader";
 
 import apiClient from "@/services/apiClient";
 
 import "@/index.css";
 import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
-import { Progress } from "@/components/ui/progress";
+import LoaderComponent from "@/components/LoaderComponent";
 
 const SpeechToTextRefined = () => {
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -66,7 +67,11 @@ const SpeechToTextRefined = () => {
             return;
         }
 
-        if (uploadedFile !== null) formData.append("audio", uploadedFile);
+        if (uploadedFile !== null) {
+            formData.append("audio", uploadedFile);
+        }
+
+        setLoading(true);
         const headers = {
             "Content-Type": "multipart/form-data",
         };
@@ -92,7 +97,8 @@ const SpeechToTextRefined = () => {
                     setErrorMessage(error.message);
                 }
                 resetError();
-            });
+            })
+            .finally(() => setLoading(false));
     };
 
     const uploadAudio = async (audioBlob: Blob) => {
@@ -108,12 +114,28 @@ const SpeechToTextRefined = () => {
                 .post("record/", formData, { headers })
                 .then((response) => {
                     if (response.data.status == "success") {
-                        setTranscribedText(response.data.transcription);
                         setLoading(false);
+                        setTranscribedText(response.data.transcription);
                     } else {
-                        alert("Transcription failed. Please try again.");
+                        setError(true);
+                        setErrorMessage(response.data.error);
                     }
-                });
+                })
+                .catch((error) => {
+                    const msg = error.response.data.error;
+                    setError(true);
+                    if (error.message == "Network Error") {
+                        setErrorMessage(
+                            "Network error, please try again later."
+                        );
+                    } else if (msg == "No speech could be recognized.") {
+                        setErrorMessage("No speech could be recognized");
+                    } else {
+                        setErrorMessage(error.message);
+                    }
+                    resetError();
+                })
+                .finally(() => setLoading(false));
         } catch (error) {
             console.error("Error uploading audio:", error);
             alert("An error occurred while uploading.");
@@ -208,9 +230,7 @@ const SpeechToTextRefined = () => {
                                 </Alert>
                             </div>
                         )}
-                        {/* {isLoading && (
-                            <Progress value={60} className="w-[60%]" />
-                        )} */}
+                        {isLoading && <LoaderComponent isLoading={isLoading} />}
                         {transcribedText && (
                             <div className="w-full max-w-md mt-6 p-4 bg-muted border border-border rounded-lg shadow-sm">
                                 <h3 className="text-lg font-semibold text-card-foreground mb-2">
