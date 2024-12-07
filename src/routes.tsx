@@ -2,10 +2,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import ErrorPage from "./pages/ErrorPage";
 import HomePage from "./pages/HomePage";
-import SpeechToText from "./pages/SpeechToText";
 import Layout from "./pages/Layout";
 import SpeechToTextRefined from "./pages/SpeechToTextRefined";
-import AudioRecorderrs from "./components/AudioRecorderrs";
+import PronunciationAssesment from "./pages/PronunciationAssesment";
 
 const router = createBrowserRouter([
     {
@@ -15,6 +14,10 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <HomePage /> },
             { path: "/speech-to-text", element: <SpeechToTextRefined /> },
+            {
+                path: "/pronunciation-assessment",
+                element: <PronunciationAssesment />,
+            },
         ],
     },
 ]);
