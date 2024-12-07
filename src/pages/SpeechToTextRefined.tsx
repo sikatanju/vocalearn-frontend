@@ -62,7 +62,7 @@ const SpeechToTextRefined = () => {
         return false;
     };
 
-    const getCleanLanguage = () => {
+    const getTargetLanguage = () => {
         if (targetLanguage.endsWith("custom"))
             return targetLanguage.replace("custom", "");
 
@@ -90,22 +90,32 @@ const SpeechToTextRefined = () => {
 
     const handleSpeechToText = () => {
         if (isLanguageEmpty()) return;
-        const formData = new FormData();
 
-        if (uploadedFile === null) {
+        if (!uploadedFile) {
             setFileError(true);
             resetError();
             return;
         }
+        setLoading(true);
+        sendAudioToSpeechAPI(uploadedFile, getTargetLanguage());
+    };
 
-        if (uploadedFile !== null) {
-            formData.append("audio", uploadedFile);
-            formData.append("target_language", getCleanLanguage());
-        }
+    const uploadAudio = (audioBlob: Blob) => {
+        if (isLanguageEmpty()) return;
+
+        setLoading(true);
+        sendAudioToSpeechAPI(audioBlob, getTargetLanguage());
+    };
+
+    const sendAudioToSpeechAPI = (audio: Blob | File, language: string) => {
+        const formData = new FormData();
+        formData.append("audio", audio);
+        formData.append("target_language", language);
+
         const headers = {
             "Content-Type": "multipart/form-data",
         };
-        setLoading(true);
+
         apiClient
             .post("speech/", formData, { headers })
             .then((response) => {
@@ -114,72 +124,31 @@ const SpeechToTextRefined = () => {
                 } else {
                     setError(true);
                     setErrorMessage(
-                        "Sorry, couldn't get the translation, please try again later."
+                        response.data.error ||
+                            "Sorry, couldn't get the translation. Please try again later."
                     );
-                    resetError();
                 }
             })
             .catch((error) => {
                 setError(true);
-                if (error.message == "Network Error") {
+                if (error.message === "Network Error") {
                     setErrorMessage("Network error, please try again later.");
+                } else if (
+                    error.response?.data?.error ===
+                    "No speech could be recognized."
+                ) {
+                    setErrorMessage("No speech could be recognized.");
                 } else {
-                    setErrorMessage(error.message);
+                    setErrorMessage(
+                        error.message || "An unexpected error occurred."
+                    );
                 }
-                resetError();
             })
-            .finally(() => setLoading(false));
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
-    const uploadAudio = async (audioBlob: Blob) => {
-        if (isLanguageEmpty()) return;
-        // let targetLang = "";
-        // if (targetLanguage.endsWith("custom")) {
-        //     targetLang = targetLanguage.replace("custom", "");
-        //     console.log(targetLang);
-        // }
-
-        const formData = new FormData();
-
-        formData.append("audio", audioBlob, "recording.wav");
-        formData.append("target_language", getCleanLanguage());
-
-        const headers = {
-            "Content-Type": "multipart/form-data",
-        };
-        setLoading(true);
-        try {
-            apiClient
-                .post("record/", formData, { headers })
-                .then((response) => {
-                    if (response.data.status == "success") {
-                        setLoading(false);
-                        setTranscribedText(response.data.transcription);
-                    } else {
-                        setError(true);
-                        setErrorMessage(response.data.error);
-                    }
-                })
-                .catch((error) => {
-                    const msg = error.response.data.error;
-                    setError(true);
-                    if (error.message == "Network Error") {
-                        setErrorMessage(
-                            "Network error, please try again later."
-                        );
-                    } else if (msg == "No speech could be recognized.") {
-                        setErrorMessage("No speech could be recognized");
-                    } else {
-                        setErrorMessage(error.message);
-                    }
-                    resetError();
-                })
-                .finally(() => setLoading(false));
-        } catch (error) {
-            console.error("Error uploading audio:", error);
-            alert("An error occurred while uploading.");
-        }
-    };
     return (
         <>
             <div className="border-t border-border py-8">
