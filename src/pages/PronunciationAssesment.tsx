@@ -2,7 +2,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
-import { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import apiClient from "@/services/apiClient";
 
@@ -22,6 +22,7 @@ import {
 import languages from "@/data/speech_to_text";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { debounce } from "lodash";
 
 const PronunciationAssesment = () => {
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -107,6 +108,13 @@ const PronunciationAssesment = () => {
         setRecordedAudioBlob(blob);
     };
 
+    const handleReferenceText = useCallback(
+        debounce((text) => {
+            setReferenceText(text);
+        }, 500),
+        []
+    );
+
     const handlePronunciationAssessment = () => {
         if (isReferenceTextEmpty()) return;
         if (isLanguageEmpty()) return;
@@ -119,31 +127,43 @@ const PronunciationAssesment = () => {
         }
         setLoading(true);
         if (uploadedFile)
-            sendAudioToSpeechAPI(uploadedFile, getTargetLanguage());
+            getPronunciationAssesment(uploadedFile, getTargetLanguage());
         else if (recordedAudioBlob)
-            sendAudioToSpeechAPI(recordedAudioBlob, getTargetLanguage());
+            getPronunciationAssesment(recordedAudioBlob, getTargetLanguage());
     };
 
-    const sendAudioToSpeechAPI = (audio: Blob | File, language: string) => {
+    const getPronunciationAssesment = (
+        audio: Blob | File,
+        language: string
+    ) => {
         const formData = new FormData();
         formData.append("audio", audio);
         formData.append("target_language", language);
+        formData.append("reference_text", referenceText);
 
         const headers = {
             "Content-Type": "multipart/form-data",
         };
 
         apiClient
-            .post("speech/", formData, { headers })
+            .post("pronunciation/", formData, { headers })
             .then((response) => {
-                if (response.data.transcription) {
-                    setTranscribedText(response.data.transcription);
+                if (response.data.status == "success") {
+                    setError(false);
+                    const data = response.data;
+                    setTranscribedText(
+                        `Accuracy Score: ${data.accuracyScore}
+                        Prosody Score: ${data.prosodyScore}
+                        Completeness Score: ${data.completenessScore}
+                        Fluency Score: ${data.fluency_score}`
+                    );
                 } else {
                     setError(true);
                     setErrorMessage(
                         response.data.error ||
                             "Sorry, couldn't get the translation. Please try again later."
                     );
+                    resetError();
                 }
             })
             .catch((error) => {
@@ -182,7 +202,7 @@ const PronunciationAssesment = () => {
                             type="text"
                             placeholder="Enter referenced text to assess pronunciation..."
                             onChange={(e) => {
-                                setReferenceText(e.target.value);
+                                handleReferenceText(e.target.value);
                             }}
                             className="w-full h-20 border border-border bg-input text-foreground rounded-lg p-2 focus:outline-none focus:border-accent"
                         />
