@@ -213,7 +213,7 @@ const SpeechToTextRefined = () => {
                                 <SelectGroup>
                                     <SelectLabel>Top Languages</SelectLabel>
                                     <SelectItem value="ar-PScustom">
-                                        "Arabic (Palestinian Authority)"
+                                        Arabic (Palestinian Authority)
                                     </SelectItem>
                                     <SelectItem value="ar-SAcustom">
                                         Arabic (Saudi Arabia)

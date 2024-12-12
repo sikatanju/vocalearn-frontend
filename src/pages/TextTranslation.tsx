@@ -79,8 +79,11 @@ const TextTranslation = () => {
 
     return (
         <>
+            <h3 className="text-xl font-bold text-card-foreground mb-6 text-center">
+                Text Translation
+            </h3>
             <div className="w-full max-w-2xl bg-card shadow-lg rounded-lg p-6 mb-8 border border-border">
-                <h2 className="text-2xl font-semibold text-card-foreground mb-4">
+                <h2 className="text-xl font-semibold text-card-foreground mb-4">
                     Translation
                 </h2>
 
@@ -139,16 +142,19 @@ const TextTranslation = () => {
                     </Button>
                 </div>
                 {translatedText && (
-                    <div className="mt-4 p-4 bg-muted text-muted-foreground border border-border rounded-lg">
+                    <div className="mt-5 p-4 bg-muted text-muted-foreground border border-border rounded-lg">
                         <h3 className="text-lg font-semibold">
                             Translated Text:
                         </h3>
                         <p className="mt-2">{translatedText}</p>
                     </div>
                 )}
-                <div>
-                    {isLoading && <LoaderComponent isLoading={isLoading} />}
-                </div>
+
+                {isLoading && (
+                    <div className="flex flex-col items-center space-y-6 mt-3">
+                        <LoaderComponent isLoading={isLoading} />
+                    </div>
+                )}
                 <div className="mt-3 w-2/3">
                     {isError && (
                         <Alert variant="destructive">
