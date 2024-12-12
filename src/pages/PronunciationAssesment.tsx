@@ -19,7 +19,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-import languages from "@/data/speech_to_text";
+import languages from "@/data/PronunciationLanguages";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { debounce } from "lodash";
@@ -218,13 +218,13 @@ const PronunciationAssesment = () => {
                                 <SelectGroup>
                                     <SelectLabel>Top Languages</SelectLabel>
                                     <SelectItem value="ar-PScustom">
-                                        "Arabic (Palestinian Authority)"
+                                        Arabic (Egypt)
                                     </SelectItem>
                                     <SelectItem value="ar-SAcustom">
                                         Arabic (Saudi Arabia)
                                     </SelectItem>
-                                    <SelectItem value="bn-INcustom">
-                                        Bengali
+                                    <SelectItem value="zh-CNcustom">
+                                        Chinese (Mandarin, Simplified)
                                     </SelectItem>
                                     <SelectItem value="en-GBcustom">
                                         English (United Kingdom)
@@ -232,15 +232,17 @@ const PronunciationAssesment = () => {
                                     <SelectItem value="en-UScustom">
                                         English (United States)
                                     </SelectItem>
-
                                     <SelectItem value="ja-JPcustom">
                                         Japanese (Japan)
                                     </SelectItem>
                                     <SelectItem value="ko-KRcustom">
                                         Korean (Korea)
                                     </SelectItem>
-                                    <SelectItem value="ru-RU">
+                                    <SelectItem value="ru-RUcustom">
                                         Russian (Russia)
+                                    </SelectItem>
+                                    <SelectItem value="es-EScustom">
+                                        Spanish (Spain)
                                     </SelectItem>
                                 </SelectGroup>
                                 <SelectGroup>
@@ -331,7 +333,7 @@ const PronunciationAssesment = () => {
                             onClick={() => handlePronunciationAssessment()}
                             className="w-64 max-w-xs bg-primary text-primary-foreground font-medium px-4 py-2 rounded-lg shadow-sm hover:bg-opacity-90 focus:ring focus:ring-accent focus:ring-opacity-50 transition"
                         >
-                            Transcribe
+                            Get Assessment
                         </Button>
                         {isLoading && <LoaderComponent isLoading={isLoading} />}
                         {transcribedText && (
