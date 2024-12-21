@@ -23,13 +23,15 @@ import languages from "@/data/PronunciationLanguages";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { debounce } from "lodash";
+import PronunciationChart, {
+    PronunciationAssessmentData,
+} from "@/components/PronunciationChart";
 
 const PronunciationAssesment = () => {
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(
         null
     );
-    const [transcribedText, setTranscribedText] = useState<string>("");
     const [referenceText, setReferenceText] = useState<string>("");
     const [targetLanguage, setTargetLanguage] = useState<string>("");
 
@@ -38,6 +40,12 @@ const PronunciationAssesment = () => {
     const [isLoading, setLoading] = useState<boolean>(false);
     const [isStopRecordingVisible, setStopRecordingVisible] =
         useState<boolean>(false);
+
+    const [showAssessmentChar, setShowAssessmentChart] =
+        useState<boolean>(false);
+    const [assessmentNumber, setAssessmentNumber] = useState<
+        PronunciationAssessmentData[]
+    >([]);
 
     const recorderControl = useAudioRecorder(
         {
@@ -125,7 +133,10 @@ const PronunciationAssesment = () => {
             resetError();
             return;
         }
+
         setLoading(true);
+        setShowAssessmentChart(false);
+        setAssessmentNumber([]);
         if (uploadedFile)
             getPronunciationAssesment(uploadedFile, getTargetLanguage());
         else if (recordedAudioBlob)
@@ -149,14 +160,66 @@ const PronunciationAssesment = () => {
             .post("pronunciation/", formData, { headers })
             .then((response) => {
                 if (response.data.status == "success") {
+                    console.log(assessmentNumber);
+                    console.log("Success");
                     setError(false);
                     const data = response.data;
-                    setTranscribedText(
-                        `Accuracy Score: ${data.accuracyScore}
-                        Prosody Score: ${data.prosodyScore}
-                        Completeness Score: ${data.completenessScore}
-                        Fluency Score: ${data.fluency_score}`
-                    );
+                    if (
+                        data.accuracyScore &&
+                        typeof data.accuracyScore === "number"
+                    ) {
+                        setAssessmentNumber((prev) => [
+                            ...prev,
+                            {
+                                category: "Accuracy Score",
+                                score: Number(data.accuracyScore.toFixed(2)),
+                            },
+                        ]);
+                        console.log(assessmentNumber);
+                    }
+                    if (
+                        data.prosodyScore &&
+                        typeof data.prosodyScore === "number"
+                    ) {
+                        console.log(data.prosodyScore);
+                        setAssessmentNumber((prev) => [
+                            ...prev,
+                            {
+                                category: "Prosody Score",
+                                score: Number(data.prosodyScore.toFixed(2)),
+                            },
+                        ]);
+                    }
+                    if (
+                        data.completenessScore &&
+                        typeof data.completenessScore === "number"
+                    ) {
+                        console.log(data.completenessScore);
+                        setAssessmentNumber((prev) => [
+                            ...prev,
+                            {
+                                category: "Completeness Score",
+                                score: Number(
+                                    data.completenessScore.toFixed(2)
+                                ),
+                            },
+                        ]);
+                    }
+                    if (
+                        data.fluency_score &&
+                        typeof data.fluency_score === "number"
+                    ) {
+                        console.log(data.fluency_score);
+
+                        setAssessmentNumber((prev) => [
+                            ...prev,
+                            {
+                                category: "Fluency Score",
+                                score: Number(data.fluency_score.toFixed(2)),
+                            },
+                        ]);
+                    }
+                    setShowAssessmentChart(true);
                 } else {
                     setError(true);
                     setErrorMessage(
@@ -336,17 +399,14 @@ const PronunciationAssesment = () => {
                             Get Assessment
                         </Button>
                         {isLoading && <LoaderComponent isLoading={isLoading} />}
-                        {transcribedText && (
-                            <div className="w-full max-w-md mt-6 p-4 bg-muted border border-border rounded-lg shadow-sm">
-                                <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                                    Transcribed Text:
-                                </h3>
-                                <p className="text-sm text-secondary-foreground leading-relaxed">
-                                    {transcribedText}
-                                </p>
-                            </div>
-                        )}
                     </div>
+                </div>
+                <div className="w-full max-w-2xl mx-auto bg-card rounded-lg p-6 mt-10">
+                    {showAssessmentChar && assessmentNumber && (
+                        <PronunciationChart
+                            pronunciationData={assessmentNumber}
+                        />
+                    )}
                 </div>
             </div>
         </>
