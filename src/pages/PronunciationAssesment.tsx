@@ -6,8 +6,6 @@ import React, { useCallback, useState } from "react";
 
 import apiClient from "@/services/apiClient";
 
-import "@/index.css";
-import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 import LoaderComponent from "@/components/LoaderComponent";
 import {
     Select,
@@ -18,14 +16,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import "@/index.css";
+import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 
-import languages from "@/data/PronunciationLanguages";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { debounce } from "lodash";
 import PronunciationChart, {
     PronunciationAssessmentData,
 } from "@/components/PronunciationChart";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import languages from "@/data/PronunciationLanguages";
+import { debounce } from "lodash";
 
 const PronunciationAssesment = () => {
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -43,6 +43,7 @@ const PronunciationAssesment = () => {
 
     const [showAssessmentChar, setShowAssessmentChart] =
         useState<boolean>(false);
+
     const [assessmentNumber, setAssessmentNumber] = useState<
         PronunciationAssessmentData[]
     >([]);
@@ -122,7 +123,6 @@ const PronunciationAssesment = () => {
         }, 500),
         []
     );
-
     const handlePronunciationAssessment = () => {
         if (isReferenceTextEmpty()) return;
         if (isLanguageEmpty()) return;
@@ -246,6 +246,12 @@ const PronunciationAssesment = () => {
             })
             .finally(() => {
                 setLoading(false);
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: document.body.scrollHeight,
+                        behavior: "smooth",
+                    });
+                }, 100);
             });
     };
     return (
@@ -256,13 +262,12 @@ const PronunciationAssesment = () => {
                         Pronunciation Assessment
                     </h2>
                     <h3 className="text-lg font-bold text-card-foreground mb-6 text-center">
-                        Record audio or Upload an audio file to check
+                        Record or upload an audio file to check your
                         pronunciation
                     </h3>
                     <div className="flex flex-col items-left space-y-2 mt-10 mb-10">
                         <Label>Reference Text</Label>
-                        <Input
-                            type="text"
+                        <Textarea
                             placeholder="Enter referenced text to assess pronunciation..."
                             onChange={(e) => {
                                 handleReferenceText(e.target.value);

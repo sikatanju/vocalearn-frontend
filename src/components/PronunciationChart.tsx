@@ -26,15 +26,6 @@ interface Props {
 }
 
 const PronunciationChart = ({ pronunciationData }: Props) => {
-    const chartData = [
-        { category: "Accuracy Score", score: 99 },
-        { category: "Prosody Score", score: 86 },
-        { category: "Completeness Score", score: 89 },
-        { category: "Fluency Score", score: 96 },
-    ];
-    pronunciationData.map((data) =>
-        console.log(data.category + " " + data.score)
-    );
     const chartConfig = {
         desktop: {
             label: "Desktop",
@@ -47,20 +38,26 @@ const PronunciationChart = ({ pronunciationData }: Props) => {
             <Card>
                 <CardHeader>
                     <CardTitle>Assessment</CardTitle>
-                    <CardDescription>
+                    <CardDescription className="font-semibold">
                         Pronunciation Assessment Score
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ChartContainer config={chartConfig}>
-                        <BarChart accessibilityLayer data={pronunciationData}>
+                        <BarChart
+                            accessibilityLayer
+                            data={pronunciationData}
+                            margin={{
+                                top: 20,
+                            }}
+                        >
                             <CartesianGrid vertical={false} />
                             <XAxis
                                 dataKey="category"
                                 tickLine={false}
                                 tickMargin={10}
                                 axisLine={false}
-                                // tickFormatter={(value)}
+                                className="font-semibold"
                             />
                             <ChartTooltip
                                 cursor={false}
