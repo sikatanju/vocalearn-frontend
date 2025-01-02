@@ -1,6 +1,7 @@
-![Vocalearn_Logo (1)](https://github.com/user-attachments/assets/db652b0a-f3d3-4005-a462-c48076e61d08)
 
-<h1>Vocalearn Frontend</h1>
+![Vocalearn_Logo_1](https://github.com/user-attachments/assets/eea1cf83-f115-4678-b3c6-88e738326827)
+
+<h1>Vocalearn (AI Enhanced)</h1>
 <h3>Vocalearn is a powerful web application designed to enhance language learning by combining translation features with real-time pronunciation analysis and feedback. This repository houses the frontend of the Vocalearn application, built with React and TypeScript.</h3>
 
 <h2>✨ Features</h2>
@@ -25,11 +26,13 @@
 [![React](https://img.shields.io/badge/React-61DAFB.svg?style=for-the-badge&logo=React&logoColor=black)](#) 
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6.svg?style=for-the-badge&logo=TypeScript&logoColor=white)](#)
 [![](https://img.shields.io/badge/shadcn/ui-000000.svg?style=for-the-badge&logo=shadcn/ui&logoColor=white)](#)
+[![Azure AI](https://img.shields.io/badge/Azure_AI-blue)](#)
 
 
 <ul>
   <li><b>Frontend:</b> React, TypeScript</li>
   <li><b>Styling:</b> Shadcn UI</li>
+  <li><b>Azure AI:</b> Microsoft Azure AI services.
   <li><b>State Management:</b> React Hooks</li>
 </ul>
 
