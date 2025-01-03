@@ -16,6 +16,20 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import LoaderComponent from "@/components/LoaderComponent";
 import "@/index.css";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+
+interface TranslationResult {
+    from: string;
+    to: string;
+    lang: string;
+}
 
 const TextTranslation = () => {
     const [translationText, setTranslationText] = useState<string>("");
@@ -26,6 +40,21 @@ const TextTranslation = () => {
     const [isError, setError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
 
+    const [translationList, setTranslationList] = useState<TranslationResult[]>([]);
+
+    const updateTranslationList = (to_text: string, targetLang: string) => {
+        const newTranslation = {
+            from: translationText,
+            to: to_text,
+            lang:
+                textLanguages.find((ln) => ln.language_code === targetLang)
+                    ?.name || targetLang,
+        };
+        setTranslationList((prevList) => {
+            const updatedList = [newTranslation, ...prevList];
+            return updatedList.splice(0, 5);
+        });
+    };
     const resetError = () => {
         setTimeout(() => {
             setError(false);
@@ -62,6 +91,10 @@ const TextTranslation = () => {
             .then((response) => {
                 if (response.data.translation) {
                     setTranslatedText(response.data.translation);
+                    updateTranslationList(
+                        response.data.translation,
+                        targetLang
+                    );
                 } else {
                     setError(true);
                     resetError();
@@ -165,6 +198,32 @@ const TextTranslation = () => {
                     )}
                 </div>
             </div>
+            {translationList.length > 0 && (
+                <div className="w-full max-w-2xl md:w-1/2">
+                    <h3 className="text-xl font-bold text-card-foreground mb-6 text-left">
+                        Last 5 translation
+                    </h3>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Text for Translation</TableHead>
+                                <TableHead>Target Language</TableHead>
+                                <TableHead>Translated Text</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {translationList &&
+                                translationList.map((obj) => (
+                                    <TableRow key={obj.from}>
+                                        <TableCell>{obj.from}</TableCell>
+                                        <TableCell>{obj.lang}</TableCell>
+                                        <TableCell>{obj.to}</TableCell>
+                                    </TableRow>
+                                ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            )}
         </>
     );
 };
