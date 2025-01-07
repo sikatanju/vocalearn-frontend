@@ -20,8 +20,32 @@ import {
 } from "@/components/ui/select";
 
 import languages from "@/data/speech_to_text";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+
+interface AudioFile {
+    id: string;
+    blob: Blob;
+    url: string;
+}
+
+interface TranscriptionResult {
+    fromAudio: AudioFile;
+    selectedLanguage: string;
+    toText: string;
+}
 
 const SpeechToTextRefined = () => {
+    const [transcriptionList, setTranscriptionList] = useState<
+        TranscriptionResult[]
+    >([]);
+
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [transcribedText, setTranscribedText] = useState<string>("");
     const [targetLanguage, setTargetLanguage] = useState<string>("");
@@ -107,6 +131,26 @@ const SpeechToTextRefined = () => {
         sendAudioToSpeechAPI(audioBlob, getTargetLanguage());
     };
 
+    const addRecords = (
+        blob: Blob,
+        targetLanguage: string,
+        transcribedText: string
+    ) => {
+        const newAudio = {
+            id: Date.now().toString(),
+            blob,
+            url: URL.createObjectURL(blob),
+        };
+
+        const newTranscriptionRes = {
+            fromAudio: newAudio,
+            selectedLanguage: targetLanguage,
+            toText: transcribedText,
+        };
+
+        setTranscriptionList([newTranscriptionRes, ...transcriptionList]);
+    };
+
     const sendAudioToSpeechAPI = (audio: Blob | File, language: string) => {
         const formData = new FormData();
         formData.append("audio", audio);
@@ -121,6 +165,7 @@ const SpeechToTextRefined = () => {
             .then((response) => {
                 if (response.data.transcription) {
                     setTranscribedText(response.data.transcription);
+                    addRecords(audio, language, response.data.transcription);
                 } else {
                     setError(true);
                     setErrorMessage(
@@ -304,6 +349,34 @@ const SpeechToTextRefined = () => {
                     </div>
                 </div>
             </div>
+
+            {transcriptionList.length > 1 && (
+                <div className="w-full max-w-2xl md:w-1/2 mx-auto">
+                    <h3 className="text-xl font-bold text-card-foreground mb-6 text-left">
+                        Last 5 Res
+                    </h3>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Audio File</TableHead>
+                                <TableHead>Target Language</TableHead>
+                                <TableHead>Transcribed Text</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {transcriptionList.map((list) => (
+                                <TableRow key={list.fromAudio.id}>
+                                    <TableCell>{list.fromAudio.url}</TableCell>
+                                    <TableCell>
+                                        {list.selectedLanguage}
+                                    </TableCell>
+                                    <TableCell>{list.toText}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            )}
         </>
     );
 };
