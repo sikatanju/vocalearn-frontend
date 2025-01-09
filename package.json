@@ -23,6 +23,7 @@
         "lodash": "^4.17.21",
         "lucide-react": "^0.460.0",
         "react": "^18.3.1",
+        "react-audio-player": "^0.17.0",
         "react-audio-voice-recorder": "^2.2.0",
         "react-dom": "^18.3.1",
         "react-router-dom": "^7.0.2",

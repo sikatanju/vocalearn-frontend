@@ -3,6 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
+import ReactAudioPlayer from "react-audio-player";
 
 import apiClient from "@/services/apiClient";
 
@@ -29,14 +30,9 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-interface AudioFile {
-    id: string;
-    blob: Blob;
-    url: string;
-}
-
 interface TranscriptionResult {
-    fromAudio: AudioFile;
+    id: number;
+    fromAudio: string;
     selectedLanguage: string;
     toText: string;
 }
@@ -136,19 +132,16 @@ const SpeechToTextRefined = () => {
         targetLanguage: string,
         transcribedText: string
     ) => {
-        const newAudio = {
-            id: Date.now().toString(),
-            blob,
-            url: URL.createObjectURL(blob),
-        };
-
         const newTranscriptionRes = {
-            fromAudio: newAudio,
+            id: Date.now(),
+            fromAudio: URL.createObjectURL(blob),
             selectedLanguage: targetLanguage,
             toText: transcribedText,
         };
-
-        setTranscriptionList([newTranscriptionRes, ...transcriptionList]);
+        setTranscriptionList((prevList) => {
+            const updatedList = [newTranscriptionRes, ...prevList];
+            return updatedList.splice(0, 5);
+        });
     };
 
     const sendAudioToSpeechAPI = (audio: Blob | File, language: string) => {
@@ -350,8 +343,8 @@ const SpeechToTextRefined = () => {
                 </div>
             </div>
 
-            {transcriptionList.length > 1 && (
-                <div className="w-full max-w-2xl md:w-1/2 mx-auto">
+            {transcriptionList.length > 0 && (
+                <div className="w-full max-w-2xl md:w-1/2 mx-auto mb-20">
                     <h3 className="text-xl font-bold text-card-foreground mb-6 text-left">
                         Last 5 Res
                     </h3>
@@ -365,8 +358,14 @@ const SpeechToTextRefined = () => {
                         </TableHeader>
                         <TableBody>
                             {transcriptionList.map((list) => (
-                                <TableRow key={list.fromAudio.id}>
-                                    <TableCell>{list.fromAudio.url}</TableCell>
+                                <TableRow key={list.id}>
+                                    <TableCell>
+                                        <ReactAudioPlayer
+                                            src={list.fromAudio}
+                                            controls
+                                            className="min-w-12"
+                                        />
+                                    </TableCell>
                                     <TableCell>
                                         {list.selectedLanguage}
                                     </TableCell>
