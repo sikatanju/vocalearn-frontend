@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import DarkModeToggle from "@/components/DarkModeToggle";
 import {
     DropdownMenu,

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import TextTranslation from "./TextTranslation";
 // import SpeechToText from "./SpeechToText";
 import "@/index.css";

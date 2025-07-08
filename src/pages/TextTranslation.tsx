@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import apiClient from "@/services/apiClient";
 import { useState } from "react";
 import textLanguages from "@/data/text_languages";
@@ -40,7 +39,9 @@ const TextTranslation = () => {
     const [isError, setError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
 
-    const [translationList, setTranslationList] = useState<TranslationResult[]>([]);
+    const [translationList, setTranslationList] = useState<TranslationResult[]>(
+        []
+    );
 
     const updateTranslationList = (to_text: string, targetLang: string) => {
         const newTranslation = {
