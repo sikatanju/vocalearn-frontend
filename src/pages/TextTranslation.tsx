@@ -202,7 +202,7 @@ const TextTranslation = () => {
             {translationList.length > 0 && (
                 <div className="w-full max-w-2xl md:w-1/2">
                     <h3 className="text-xl font-bold text-card-foreground mb-6 text-left">
-                        Last 5 translation
+                        Last 5 translation <span className="text-sm text-gray-400">(Sign-in to save your translations)</span>
                     </h3>
                     <Table>
                         <TableHeader>

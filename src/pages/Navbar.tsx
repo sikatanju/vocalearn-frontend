@@ -22,51 +22,58 @@ const Navbar = () => {
                         </span>
                     </Link>
                 </a>
-                <div
-                    data-collapse-toggle="mobile-menu"
-                    className="md:hidden text-gray-500 dark:text-gray-400 p-2 rounded focus:outline-none focus:ring-2 focus:ring-accent"
-                    aria-controls="mobile-menu"
-                    aria-expanded="true"
-                >
-                    <DropdownMenu>
-                        <DropdownMenuTrigger
-                            onClick={() => setVisible(isVisible ? false : true)}
-                        >
-                            <svg
-                                className="w-6 h-6"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg"
+                <div className="flex place-items-center gap-x-2 py-1 md:hidden">
+                    <div
+                        data-collapse-toggle="mobile-menu"
+                        className="text-gray-500 dark:text-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-accent"
+                        aria-controls="mobile-menu"
+                        aria-expanded="true"
+                    >
+                        <DropdownMenu>
+                            <DropdownMenuTrigger
+                                onClick={() => setVisible(isVisible ? false : true)}
                             >
-                                <path
-                                    fillRule="evenodd"
-                                    d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <Link to="/">
-                                <DropdownMenuItem>Translate</DropdownMenuItem>
-                            </Link>
-                            <Link to="/speech-to-text">
+                                <svg
+                                    className="w-6 h-6"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <Link to="/">
+                                    <DropdownMenuItem>Translate</DropdownMenuItem>
+                                </Link>
+                                <Link to="/speech-to-text">
+                                    <DropdownMenuItem>
+                                        Speech to Text
+                                    </DropdownMenuItem>
+                                </Link>
+                                <Link to="#">
+                                    <DropdownMenuItem>
+                                        Pronunciation
+                                    </DropdownMenuItem>
+                                </Link>
                                 <DropdownMenuItem>
-                                    Speech to Text
+                                    <DarkModeToggle />
                                 </DropdownMenuItem>
-                            </Link>
-                            <Link to="#">
-                                <DropdownMenuItem>
-                                    Pronunciation
-                                </DropdownMenuItem>
-                            </Link>
-                            <DropdownMenuItem>
-                                <DarkModeToggle />
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                    <div className="pb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                    </div>
                 </div>
                 <div
-                    className="hidden md:flex space-x-8 items-center"
+                    className="hidden md:flex space-x-6 items-center"
                     id="mobile-menu"
                 >
                     <Link to="/">
@@ -94,6 +101,11 @@ const Navbar = () => {
                         </a>
                     </Link>
                     <DarkModeToggle />
+                    <div className="">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                    </div>
                 </div>
             </div>
         </nav>
