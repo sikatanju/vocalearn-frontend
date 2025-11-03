@@ -13,7 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const ProfilePage = () => {
-    const { user, updateProfile } = useAuth();
+    const { user } = useAuth();
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [profilePicture, setProfilePicture] = useState(
@@ -31,7 +31,7 @@ const ProfilePage = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        updateProfile({ name, email, profilePicture });
+        // updateProfile({ name, email, profilePicture });
         alert('Profile updated successfully!');
     };
 

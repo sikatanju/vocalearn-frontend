@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+// import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,13 +12,16 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import apiClient from '@/services/apiClient';
 
 const SignupPage = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const { login } = useAuth();
+    const [error, setError] = useState('');
+    // const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -28,17 +32,31 @@ const SignupPage = () => {
             return;
         }
 
-        // TODO: Replace this with actual API call
-        // For now, we'll simulate a signup
-        const newUser = {
-            id: Date.now().toString(),
-            name: name,
-            email: email,
-            profilePicture: '', // Optional: Add a profile picture URL
-        };
+        apiClient
+            .post('/auth/users/', {
+                first_name: name.trim().split(/\s+/)[0],
+                last_name: name.trim().split(/\s+/).slice(1).join(' ') || null,
+                username: username,
+                email: email,
+                password: password,
+            })
+            .then((res) => {
+                navigate('/login');
+            })
+            .catch((apiError) => {
+                const errorMessage =
+                    apiError.response?.data?.message ||
+                    apiError.message ||
+                    'Signup failed. Please try again.';
 
-        login(newUser);
-        navigate('/');
+                setError(errorMessage);
+                setTimeout(() => {
+                    setError('');
+                }, 2000);
+            })
+            // .finally(() => {
+            //     setIsLoading(false);
+            // });
     };
 
     return (
@@ -51,6 +69,11 @@ const SignupPage = () => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {error && (
+                        <p className="text-red-400 flex w-full items-center justify-center">
+                            {error}
+                        </p>
+                    )}
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">Full Name</Label>
@@ -69,6 +92,7 @@ const SignupPage = () => {
                                 id="username"
                                 type="text"
                                 placeholder="haikou_hustler"
+                                onChange={(e) => setUsername(e.target.value)}
                                 required
                             />
                         </div>
