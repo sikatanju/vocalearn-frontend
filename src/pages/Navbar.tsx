@@ -4,15 +4,33 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import '@/index.css';
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
     const [isVisible, setVisible] = useState<boolean>(false);
     const [isProfileDropDown, setIsProfileDropDown] = useState<boolean>(false);
+    const { user, isAuthenticated, logout } = useAuth();
+
+    const getInitials = (name: string) => {
+        return name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    };
+
+    const handleLogout = () => {
+        logout();
+    };
 
     return (
         <nav className="border border-border px-4 py-3 rounded bg-background shadow-md">
@@ -75,7 +93,7 @@ const Navbar = () => {
                                         Speech to Text
                                     </DropdownMenuItem>
                                 </Link>
-                                <Link to="#">
+                                <Link to="/pronunciation-assessment">
                                     <DropdownMenuItem>
                                         Pronunciation
                                     </DropdownMenuItem>
@@ -86,38 +104,47 @@ const Navbar = () => {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
-                    <div className=''>
+                    {isAuthenticated ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger
                                 onClick={() =>
                                     setIsProfileDropDown(!isProfileDropDown)
                                 }
                             >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="size-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                                <Avatar className="h-8 w-8 cursor-pointer">
+                                    <AvatarImage
+                                        src={user?.profilePicture}
+                                        alt={user?.name}
                                     />
-                                </svg>
+                                    <AvatarFallback>
+                                        {user?.name
+                                            ? getInitials(user.name)
+                                            : 'U'}
+                                    </AvatarFallback>
+                                </Avatar>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
+                            <DropdownMenuContent align="end">
                                 <Link to="/profile">
                                     <DropdownMenuItem>Profile</DropdownMenuItem>
                                 </Link>
-                                <Link to="/logout">
-                                    <DropdownMenuItem>Logout</DropdownMenuItem>
-                                </Link>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={handleLogout}>
+                                    Logout
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    </div>
+                    ) : (
+                        <div className="flex gap-2">
+                            <Link to="/login">
+                                <Button variant="ghost" size="sm">
+                                    Login
+                                </Button>
+                            </Link>
+                            <Link to="/signup">
+                                <Button size="sm">Sign Up</Button>
+                            </Link>
+                        </div>
+                    )}
                 </div>
                 <div
                     className="hidden md:flex space-x-6 items-center"
@@ -148,38 +175,47 @@ const Navbar = () => {
                         </a>
                     </Link>
                     <DarkModeToggle />
-                    <div className='pt-1'>
+                    {isAuthenticated ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger
                                 onClick={() =>
                                     setIsProfileDropDown(!isProfileDropDown)
                                 }
                             >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="size-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                                <Avatar className="h-9 w-9 cursor-pointer">
+                                    <AvatarImage
+                                        src={user?.profilePicture}
+                                        alt={user?.name}
                                     />
-                                </svg>
+                                    <AvatarFallback className="bg-primary text-primary-foreground">
+                                        {user?.name
+                                            ? getInitials(user.name)
+                                            : 'U'}
+                                    </AvatarFallback>
+                                </Avatar>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
+                            <DropdownMenuContent align="end">
                                 <Link to="/profile">
                                     <DropdownMenuItem>Profile</DropdownMenuItem>
                                 </Link>
-                                <Link to="/logout">
-                                    <DropdownMenuItem>Logout</DropdownMenuItem>
-                                </Link>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={handleLogout}>
+                                    Logout
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    </div>
+                    ) : (
+                        <div className="flex gap-2">
+                            <Link to="/login">
+                                <Button variant="ghost" size="sm">
+                                    Login
+                                </Button>
+                            </Link>
+                            <Link to="/signup">
+                                <Button size="sm">Sign Up</Button>
+                            </Link>
+                        </div>
+                    )}
                 </div>
             </div>
         </nav>
