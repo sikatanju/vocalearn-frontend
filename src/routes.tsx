@@ -7,6 +7,7 @@ import PronunciationAssesment from './pages/PronunciationAssesment';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
+import LandingPage from './pages/LandingPage';
 
 const router = createBrowserRouter([
     {
@@ -14,18 +15,18 @@ const router = createBrowserRouter([
         element: <Layout />,
         errorElement: <ErrorPage />,
         children: [
-            { index: true, element: <HomePage /> },
+            { index: true, element: <LandingPage /> },
+            { path: '/translate', element: <HomePage /> },
             { path: '/speech-to-text', element: <SpeechToTextRefined /> },
             {
                 path: '/pronunciation-assessment',
                 element: <PronunciationAssesment />,
             },
             { path: '/profile', element: <ProfilePage /> },
-
-            { path: '/login', element: <LoginPage /> },
-            { path: '/signup', element: <SignupPage /> },
         ],
     },
+    { path: '/login', element: <LoginPage /> },
+    { path: '/signup', element: <SignupPage /> },
 ]);
 
 export default router;

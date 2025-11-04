@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-// import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,7 +38,7 @@ const SignupPage = () => {
                 email: email,
                 password: password,
             })
-            .then((res) => {
+            .then(() => {
                 navigate('/login');
             })
             .catch((apiError) => {
@@ -53,10 +51,10 @@ const SignupPage = () => {
                 setTimeout(() => {
                     setError('');
                 }, 2000);
-            })
-            // .finally(() => {
-            //     setIsLoading(false);
-            // });
+            });
+        // .finally(() => {
+        //     setIsLoading(false);
+        // });
     };
 
     return (

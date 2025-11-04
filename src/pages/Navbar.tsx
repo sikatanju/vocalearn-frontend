@@ -83,7 +83,7 @@ const Navbar = () => {
                                 </svg>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                                <Link to="/">
+                                <Link to="/translate">
                                     <DropdownMenuItem>
                                         Translate
                                     </DropdownMenuItem>
@@ -150,7 +150,7 @@ const Navbar = () => {
                     className="hidden md:flex space-x-6 items-center"
                     id="table-menu"
                 >
-                    <Link to="/">
+                    <Link to="/translate">
                         <a
                             href="#"
                             className="text-sm font-medium text-card-foreground hover:text-accent transition-colors"
