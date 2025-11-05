@@ -169,7 +169,10 @@ const Navbar = () => {
                     id="table-menu"
                 >
                     {isAuthenticated && (
-                        <div>
+                        <div
+                            className="hidden md:flex space-x-6 items-center"
+                            id="table-menu"
+                        >
                             <Link to="/translate">
                                 <a
                                     href="#"
