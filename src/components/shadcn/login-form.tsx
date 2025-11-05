@@ -17,7 +17,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 export function LoginForm({
     className,
@@ -37,7 +38,7 @@ export function LoginForm({
 
         try {
             await login(email, password);
-            navigate('/'); // Redirect to dashboard after login
+            navigate('/translate'); // Redirect to dashboard after login
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Login failed');
         } finally {
@@ -48,6 +49,12 @@ export function LoginForm({
     return (
         <div className={cn('flex flex-col gap-6', className)} {...props}>
             <Card>
+                <Link to={'/'}>
+                    <div className="pt-6 pl-5 text-sm flex gap-x-1 items-center">
+                        <span className=''><ArrowLeft size={16}/></span>
+                        Back to home
+                    </div>
+                </Link>
                 <CardHeader>
                     <CardTitle>Login to your account</CardTitle>
                     <CardDescription>
@@ -63,7 +70,9 @@ export function LoginForm({
                                 </div>
                             )}
                             <Field>
-                                <FieldLabel htmlFor="email">Email</FieldLabel>
+                                <FieldLabel htmlFor="email">
+                                    Username or Email
+                                </FieldLabel>
                                 <Input
                                     id="email"
                                     type="text"
@@ -104,7 +113,7 @@ export function LoginForm({
                                 </Button>
                                 <FieldDescription className="text-center">
                                     Don&apos;t have an account?{' '}
-                                    <a href="/signup">Sign up</a>
+                                    <Link to="/signup">Sign up</Link>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>

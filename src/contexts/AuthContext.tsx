@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 try {
                     // Fetch current user data from your backend
                     // Adjust this endpoint to match your backend
-                    const response = await apiClient.get('/user/me');
+                    const response = await apiClient.get('auth/users/me/');
                     setUser(response.data);
                 } catch (error) {
                     console.error('Failed to fetch user:', error);
