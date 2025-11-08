@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
 import ErrorPage from './pages/ErrorPage';
-import HomePage from './pages/HomePage';
 import Layout from './pages/Layout';
 import SpeechToTextRefined from './pages/SpeechToTextRefined';
 import PronunciationAssesment from './pages/PronunciationAssesment';
@@ -8,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import LandingPage from './pages/LandingPage';
+import TextTranslation from './pages/TextTranslation';
 
 const router = createBrowserRouter([
     {
@@ -16,7 +16,7 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         children: [
             { index: true, element: <LandingPage /> },
-            { path: '/translate', element: <HomePage /> },
+            { path: '/translate', element: <TextTranslation /> },
             { path: '/speech-to-text', element: <SpeechToTextRefined /> },
             {
                 path: '/pronunciation-assessment',
