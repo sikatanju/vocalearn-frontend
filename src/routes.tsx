@@ -8,6 +8,7 @@ import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import LandingPage from './pages/LandingPage';
 import TextTranslation from './pages/TextTranslation';
+import AllTranslationsPage from './pages/AllTranslationsPage';
 
 const router = createBrowserRouter([
     {
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <LandingPage /> },
             { path: '/translate', element: <TextTranslation /> },
+            { path: '/translations', element: <AllTranslationsPage /> },
             { path: '/speech-to-text', element: <SpeechToTextRefined /> },
             {
                 path: '/pronunciation-assessment',
