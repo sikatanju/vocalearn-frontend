@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-refresh/only-export-components */
 import apiClient from '@/services/apiClient';
 import {
@@ -31,22 +30,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // On mount, check if we have a token and fetch user data
     useEffect(() => {
         const initAuth = async () => {
             const token = localStorage.getItem('accessToken');
 
             if (token) {
                 try {
-                    // Fetch current user data from your backend
-                    // Adjust this endpoint to match your backend
                     const response = await apiClient.get('auth/users/me/');
                     setUser(response.data);
                 } catch (error) {
                     console.error('Failed to fetch user:', error);
-                    // Token might be invalid, clear it
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
+                    if (
+                        error &&
+                        typeof error === 'object' &&
+                        'response' in error
+                    ) {
+                        const axiosError = error as {
+                            response?: { status?: number };
+                        };
+                        if (axiosError.response?.status !== 401) {
+                            // It's not an auth error, something else went wrong
+                            localStorage.removeItem('accessToken');
+                            localStorage.removeItem('refreshToken');
+                        }
+                    }
                 }
             }
 

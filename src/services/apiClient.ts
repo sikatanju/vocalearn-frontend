@@ -26,32 +26,53 @@ apiClient.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // If error is 401 and we haven't tried to refresh yet
+        // Don't retry if this is already a retry or if it's not a 401 error
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            try {
-                const refreshToken = localStorage.getItem('refreshToken');
+            const refreshToken = localStorage.getItem('refreshToken');
 
-                // Call your refresh endpoint
+            // If no refresh token, don't try to refresh - just reject
+            if (!refreshToken) {
+                console.warn(
+                    'No refresh token available, cannot refresh session'
+                );
+                return Promise.reject(error);
+            }
+
+            try {
+                console.log('Attempting to refresh token...');
                 const response = await axios.post(
-                    `${import.meta.env.VITE_VOCALEARN_URL}/auth/refresh`,
-                    { refreshToken }
+                    `${import.meta.env.VITE_VOCALEARN_URL}auth/jwt/refresh/`,
+                    { refresh: refreshToken }
                 );
 
-                const { accessToken } = response.data;
+                const { access } = response.data;
+
+                if (!access) {
+                    throw new Error('No access token in refresh response');
+                }
 
                 // Store new access token
-                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('accessToken', access);
+                console.log('Token refreshed successfully');
 
                 // Retry the original request with new token
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                originalRequest.headers.Authorization = `JWT ${access}`;
                 return apiClient(originalRequest);
             } catch (refreshError) {
-                // If refresh fails, clear tokens and redirect to login
+                // Only clear tokens and redirect if refresh actually failed
+                console.error('Token refresh failed:', refreshError);
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                window.location.href = '/login';
+
+                // Avoid redirect loop
+                if (
+                    !window.location.pathname.includes('/login') &&
+                    !window.location.pathname.includes('/signup')
+                ) {
+                    window.location.href = '/login';
+                }
                 return Promise.reject(refreshError);
             }
         }
