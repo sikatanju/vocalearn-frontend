@@ -19,7 +19,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 
-import languages from '@/data/speech_to_text';
+import languages, { speechLanguageCodeToNameMap } from '@/data/speech_to_text';
 import {
     Table,
     TableBody,
@@ -41,11 +41,11 @@ const SpeechToText = () => {
         TranscriptionResult[]
     >([]);
 
-    const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+    const [audioFile, setAudioFile] = useState<File | Blob | null>(null);
     const [transcribedText, setTranscribedText] = useState<string>('');
     const [targetLanguage, setTargetLanguage] = useState<string>('');
     const [fileError, setFileError] = useState<boolean>(false);
-
+    const [info, setInfo] = useState<string>('');
     const [isError, setError] = useState<boolean>(false);
     const [erroMessage, setErrorMessage] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -103,27 +103,30 @@ const SpeechToText = () => {
         }
         const file = event.target.files?.[0];
         if (file) {
-            setUploadedFile(file);
+            setAudioFile(file);
         }
     };
 
     const handleSpeechToText = () => {
         if (isLanguageEmpty()) return;
 
-        if (!uploadedFile) {
+        if (!audioFile) {
             setFileError(true);
             resetError();
             return;
         }
         setLoading(true);
-        sendAudioToSpeechAPI(uploadedFile, getTargetLanguage());
+        sendAudioToSpeechAPI(audioFile, getTargetLanguage());
     };
 
     const uploadAudio = (audioBlob: Blob) => {
         if (isLanguageEmpty()) return;
 
-        setLoading(true);
-        sendAudioToSpeechAPI(audioBlob, getTargetLanguage());
+        // setLoading(true);
+        setAudioFile(audioBlob);
+        setInfo(
+            'Recording complete, press `Transcribe` to get the transcription'
+        );
     };
 
     const addRecords = (
@@ -144,6 +147,7 @@ const SpeechToText = () => {
     };
 
     const sendAudioToSpeechAPI = (audio: Blob | File, language: string) => {
+        setInfo('');
         const formData = new FormData();
         formData.append('audio', audio);
         formData.append('target_language', language);
@@ -239,6 +243,11 @@ const SpeechToText = () => {
                             )}
                         </div>
                     </div>
+                    {info && (
+                        <div className="w-full flex items-center justify-center text-sm">
+                            {info}
+                        </div>
+                    )}
                     <div className="flex flex-col items-center space-y-6 mt-5">
                         <Select
                             onValueChange={(value) => setTargetLanguage(value)}
@@ -343,7 +352,7 @@ const SpeechToText = () => {
             </div>
 
             {transcriptionList.length > 0 && (
-                <div className="w-full max-w-2xl md:w-1/2 mx-auto mb-20">
+                <div className="w-full max-w-2xl md:w-full mx-auto mb-20">
                     <h3 className="text-xl font-bold text-card-foreground mb-6 text-left">
                         Last 5 Res
                     </h3>
@@ -366,7 +375,7 @@ const SpeechToText = () => {
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        {list.selectedLanguage}
+                                        {speechLanguageCodeToNameMap.get(list.selectedLanguage)}
                                     </TableCell>
                                     <TableCell>{list.toText}</TableCell>
                                 </TableRow>

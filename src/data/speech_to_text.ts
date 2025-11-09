@@ -847,4 +847,8 @@ const speechToTextLanguages = [
     },
 ];
 
+export const speechLanguageCodeToNameMap = new Map(
+    speechToTextLanguages.map((lang) => [lang.language_code, lang.name])
+);
+
 export default speechToTextLanguages;
