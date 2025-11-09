@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import ErrorPage from './pages/ErrorPage';
 import Layout from './pages/Layout';
-import SpeechToTextRefined from './pages/SpeechToTextRefined';
+import SpeechToText from './pages/SpeechToText';
 import PronunciationAssesment from './pages/PronunciationAssesment';
 import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
@@ -19,7 +19,7 @@ const router = createBrowserRouter([
             { index: true, element: <LandingPage /> },
             { path: '/translate', element: <TextTranslation /> },
             { path: '/translations', element: <AllTranslationsPage /> },
-            { path: '/speech-to-text', element: <SpeechToTextRefined /> },
+            { path: '/speech-to-text', element: <SpeechToText /> },
             {
                 path: '/pronunciation-assessment',
                 element: <PronunciationAssesment />,
