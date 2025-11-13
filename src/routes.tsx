@@ -7,8 +7,8 @@ import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import LandingPage from './pages/LandingPage';
-import TextTranslation from './pages/TextTranslation';
-import AllTranslationsPage from './pages/AllTranslationsPage';
+import TextTranslation from './pages/Translations/TextTranslation';
+import AllTranslationsPage from './pages/Translations/AllTranslationsPage';
 
 const router = createBrowserRouter([
     {

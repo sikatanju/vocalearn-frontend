@@ -31,6 +31,17 @@ import {
     CheckCircle2,
 } from 'lucide-react';
 import apiClient from '@/services/apiClient';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface TranslationItem {
     id: string;
@@ -152,7 +163,7 @@ const AllTranslationsPage = () => {
         const prevTranslations = translations;
         setTranslations((prev) => prev.filter((item) => item.id !== id));
         apiClient
-            .delete(`saved-items/delete/${id}/`)
+            .delete(`saved-items/${id}/`)
             .then(() => {})
             .catch((e) => {
                 console.log(e);
@@ -370,18 +381,53 @@ const AllTranslationsPage = () => {
                                                     {formatDate(item.createdAt)}
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 text-destructive hover:text-destructive"
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                item.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>
+                                                                    Are you sure
+                                                                    you want to
+                                                                    delete this
+                                                                    translation
+                                                                    ?
+                                                                </AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    This action
+                                                                    cannot be
+                                                                    undone. This
+                                                                    will delete
+                                                                    the
+                                                                    translation.
+                                                                    Proceed with
+                                                                    caution.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>
+                                                                    Cancel
+                                                                </AlertDialogCancel>
+                                                                <AlertDialogAction
+                                                                    className="bg-destructive text-gray-100 hover:text-gray-300 hover:bg-red-500"
+                                                                    onClick={() =>
+                                                                        handleDelete(
+                                                                            item.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Delete
+                                                                </AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
