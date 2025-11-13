@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactAudioPlayer from 'react-audio-player';
 
 import apiClient from '@/services/apiClient';
@@ -28,15 +29,19 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useAuth } from '@/contexts/AuthContext';
+import { getSavedSpeechToText, SavedItem } from '@/services/savedItemsService';
+import { Link } from 'react-router-dom';
 
 interface TranscriptionResult {
-    id: number;
-    fromAudio: string;
+    id: number | string;
+    fromAudio?: string | undefined;
     selectedLanguage: string;
     toText: string;
 }
 
 const SpeechToText = () => {
+    const { isAuthenticated } = useAuth();
     const [transcriptionList, setTranscriptionList] = useState<
         TranscriptionResult[]
     >([]);
@@ -189,6 +194,41 @@ const SpeechToText = () => {
                 setLoading(false);
             });
     };
+
+    //     id: number;
+    // fromAudio: string;
+    // selectedLanguage: string;
+    // toText: string;
+    const fetchSavedTranscriptions = async () => {
+        console.log('Fetching saved transcriptions...');
+        setLoading(true);
+        try {
+            const response = await getSavedSpeechToText();
+            const transcriptions: TranscriptionResult[] = response?.items?.map(
+                (item: SavedItem) => ({
+                    id: item?.id,
+                    fromAudio: '',
+                    selectedLanguage: item?.target_language || '',
+                    toText: item?.content?.transcription || '',
+                })
+            );
+            setTranscriptionList(transcriptions);
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+        }
+
+        // setTranscriptionList(response);
+    };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchSavedTranscriptions();
+        } else {
+            setTranscriptionList([]);
+        }
+    }, [isAuthenticated]);
 
     return (
         <>
@@ -353,9 +393,14 @@ const SpeechToText = () => {
 
             {transcriptionList.length > 0 && (
                 <div className="w-full max-w-2xl md:w-full mx-auto mb-20">
-                    <h3 className="text-xl font-bold text-card-foreground mb-6 text-left">
-                        Last 5 Res
-                    </h3>
+                    <div className="w-full flex justify-between px-2 md:px-0 mb-2 md:mb-0">
+                        <h3 className="text-xl font-bold text-card-foreground mb-6 text-left">
+                            Last 5 results
+                        </h3>
+                        <Link to={'/transcriptions'}>
+                            <Button>See All</Button>
+                        </Link>
+                    </div>
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -375,7 +420,9 @@ const SpeechToText = () => {
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        {speechLanguageCodeToNameMap.get(list.selectedLanguage)}
+                                        {speechLanguageCodeToNameMap.get(
+                                            list.selectedLanguage
+                                        )}
                                     </TableCell>
                                     <TableCell>{list.toText}</TableCell>
                                 </TableRow>
