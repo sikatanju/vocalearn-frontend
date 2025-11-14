@@ -30,7 +30,9 @@ import {
     Copy,
     CheckCircle2,
     Download,
-    Volume2,
+    Play,
+    Pause,
+    X,
 } from 'lucide-react';
 import apiClient from '@/services/apiClient';
 import {
@@ -68,6 +70,11 @@ const AllTranscriptions = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
     const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+    const [audioBlob, setAudioBlob] = useState<string | null>(null);
+    const [audioBlobCache, setAudioBlobCache] = useState<Map<string, string>>(
+        new Map()
+    );
 
     useEffect(() => {
         // Wait for auth to finish loading before checking authentication
@@ -81,6 +88,15 @@ const AllTranscriptions = () => {
         }
         fetchAllTranscriptions();
     }, [isAuthenticated, authLoading, navigate]);
+
+    // Cleanup: Revoke all blob URLs when component unmounts
+    useEffect(() => {
+        return () => {
+            audioBlobCache.forEach((url) => {
+                window.URL.revokeObjectURL(url);
+            });
+        };
+    }, [audioBlobCache]);
 
     useEffect(() => {
         if (searchQuery.trim() === '') {
@@ -104,7 +120,7 @@ const AllTranscriptions = () => {
             const transcriptionItems: TranscriptionItem[] = response.items.map(
                 (item: SavedItem) => ({
                     id: item.id,
-                    audioUrl: item.content.audio_url || null,
+                    audioUrl: item.audio_url || null,
                     transcribedText: item.content.transcription || '',
                     language:
                         speechLanguageCodeToNameMap.get(
@@ -164,27 +180,87 @@ const AllTranscriptions = () => {
         }
     };
 
-    const handleDownloadAudio = async (audioUrl: string, id: string) => {
+    const handlePlayAudio = async (id: string) => {
         try {
-            // TODO: Implement backend API for audio download
-            // For now, just show a placeholder behavior
-            console.log('Download audio:', audioUrl, id);
+            // If already playing this audio, pause it
+            if (playingAudioId === id) {
+                setPlayingAudioId(null);
+                setAudioBlob(null);
+                return;
+            }
 
-            // Future implementation:
-            // const response = await apiClient.get(`audio/download/${id}/`, {
-            //     responseType: 'blob'
-            // });
-            // const blob = new Blob([response.data], { type: 'audio/wav' });
-            // const url = window.URL.createObjectURL(blob);
-            // const link = document.createElement('a');
-            // link.href = url;
-            // link.download = `transcription-${id}.wav`;
-            // link.click();
-            // window.URL.revokeObjectURL(url);
+            // Check if audio is already in cache
+            if (audioBlobCache.has(id)) {
+                const cachedUrl = audioBlobCache.get(id)!;
+                setAudioBlob(cachedUrl);
+                setPlayingAudioId(id);
+                return;
+            }
 
-            alert('Audio download feature will be implemented soon!');
+            // Fetch the audio file from backend if not in cache
+            const response = await apiClient.get(`saved-items/${id}/audio/`, {
+                responseType: 'blob',
+            });
+
+            // Create blob URL for audio playback
+            const blob = new Blob([response.data], { type: 'audio/wav' });
+            const url = window.URL.createObjectURL(blob);
+
+            // Add to cache
+            setAudioBlobCache((prev) => new Map(prev).set(id, url));
+
+            setAudioBlob(url);
+            setPlayingAudioId(id);
+        } catch (err) {
+            console.error('Failed to load audio:', err);
+            setError('Failed to load audio file. Please try again.');
+            setTimeout(() => setError(''), 5000);
+        }
+    };
+
+    const handleCloseAudioPlayer = () => {
+        setAudioBlob(null);
+        setPlayingAudioId(null);
+    };
+
+    const handleDownloadAudio = async (id: string) => {
+        try {
+
+            // Fetch the audio file from backend
+            const response = await apiClient.get(`saved-items/${id}/audio/`, {
+                responseType: 'blob',
+            });
+
+            // Get filename from Content-Disposition header or use default
+            const contentDisposition = response.headers['content-disposition'];
+            let filename = `transcription-${id}.wav`;
+
+            if (contentDisposition) {
+                const filenameMatch =
+                    contentDisposition.match(/filename="(.+)"/);
+                if (filenameMatch && filenameMatch[1]) {
+                    filename = filenameMatch[1];
+                }
+            }
+
+            // Create blob from response data
+            const blob = new Blob([response.data], { type: 'audio/wav' });
+            const url = window.URL.createObjectURL(blob);
+
+            // Create temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+
+            // Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
         } catch (err) {
             console.error('Failed to download audio:', err);
+            setError('Failed to download audio file. Please try again.');
+            setTimeout(() => setError(''), 5000);
         }
     };
 
@@ -366,22 +442,36 @@ const AllTranscriptions = () => {
                                             >
                                                 <TableCell>
                                                     {item.audioUrl ? (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="gap-2"
-                                                            onClick={() =>
-                                                                handleDownloadAudio(
-                                                                    item.audioUrl!,
+                                                        <div className="flex items-center gap-2">
+                                                            <Button
+                                                                variant={
+                                                                    playingAudioId ===
                                                                     item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            <Volume2 className="w-4 h-4" />
-                                                            <span className="hidden sm:inline">
-                                                                Audio
-                                                            </span>
-                                                        </Button>
+                                                                        ? 'default'
+                                                                        : 'outline'
+                                                                }
+                                                                size="sm"
+                                                                className="gap-2"
+                                                                onClick={() =>
+                                                                    handlePlayAudio(
+                                                                        item.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                {playingAudioId ===
+                                                                item.id ? (
+                                                                    <Pause className="w-4 h-4" />
+                                                                ) : (
+                                                                    <Play className="w-4 h-4" />
+                                                                )}
+                                                                <span className="hidden sm:inline">
+                                                                    {playingAudioId ===
+                                                                    item.id
+                                                                        ? 'Stop'
+                                                                        : 'Play'}
+                                                                </span>
+                                                            </Button>
+                                                        </div>
                                                     ) : (
                                                         <span className="text-sm text-muted-foreground">
                                                             No audio
@@ -431,19 +521,56 @@ const AllTranscriptions = () => {
                                                 <TableCell className="text-right">
                                                     <div className="flex items-center justify-end gap-2">
                                                         {item.audioUrl && (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
-                                                                onClick={() =>
-                                                                    handleDownloadAudio(
-                                                                        item.audioUrl!,
-                                                                        item.id
-                                                                    )
-                                                                }
-                                                            >
-                                                                <Download className="w-4 h-4" />
-                                                            </Button>
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger
+                                                                    asChild
+                                                                >
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                                                                    >
+                                                                        <Download className="w-4 h-4" />
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>
+                                                                            Download
+                                                                            Audio
+                                                                            File
+                                                                        </AlertDialogTitle>
+                                                                        <AlertDialogDescription>
+                                                                            Are
+                                                                            you
+                                                                            sure
+                                                                            you
+                                                                            want
+                                                                            to
+                                                                            download
+                                                                            associated
+                                                                            audio
+                                                                            file
+                                                                            ?
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>
+                                                                            Cancel
+                                                                        </AlertDialogCancel>
+                                                                        <AlertDialogAction
+                                                                            onClick={() =>
+                                                                                handleDownloadAudio(
+                                                                                    item.id
+                                                                                )
+                                                                            }
+                                                                            className="bg-accent text-destructive-foreground hover:bg-accent/80"
+                                                                        >
+                                                                            Download
+                                                                        </AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
                                                         )}
                                                         <AlertDialog>
                                                             <AlertDialogTrigger
@@ -504,6 +631,47 @@ const AllTranscriptions = () => {
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Audio Player */}
+                {audioBlob && playingAudioId && (
+                    <Card className="mt-6 border-2 border-primary/50">
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold flex items-center gap-2">
+                                    <Play className="w-5 h-5 text-primary" />
+                                    Now Playing
+                                </h3>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleCloseAudioPlayer}
+                                    className="h-8 w-8 p-0"
+                                >
+                                    <X className="w-4 h-4" />
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-sm text-muted-foreground">
+                                    {
+                                        filteredTranscriptions.find(
+                                            (t) => t.id === playingAudioId
+                                        )?.transcribedText
+                                    }
+                                </p>
+                                <audio
+                                    controls
+                                    autoPlay
+                                    src={audioBlob}
+                                    className="w-full"
+                                    onEnded={handleCloseAudioPlayer}
+                                >
+                                    Your browser does not support the audio
+                                    element.
+                                </audio>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Stats Footer */}
                 {!isLoading && transcriptions.length > 0 && (

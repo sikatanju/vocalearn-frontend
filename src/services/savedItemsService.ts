@@ -24,6 +24,7 @@ export interface SavedItem {
     source_language: string | null;
     target_language: string | null;
     created_at: string;
+    audio_url?: string;
     collections: SavedItemCollection[];
 }
 
