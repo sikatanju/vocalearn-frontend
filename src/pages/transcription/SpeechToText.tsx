@@ -3,7 +3,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import ReactAudioPlayer from 'react-audio-player';
 
 import apiClient from '@/services/apiClient';
 
@@ -32,6 +31,12 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { getSavedSpeechToText, SavedItem } from '@/services/savedItemsService';
 import { Link } from 'react-router-dom';
+import {
+    AudioPlayerWithCache,
+    AudioDownloadButton,
+    FloatingAudioPlayer,
+} from '@/components/AudioPlayer';
+import { useAudioCache } from '@/hooks/useAudioCache';
 
 interface TranscriptionResult {
     id: number | string;
@@ -48,6 +53,22 @@ const SpeechToText = () => {
 
     const [audioFile, setAudioFile] = useState<File | Blob | null>(null);
     const [transcribedText, setTranscribedText] = useState<string>('');
+
+    const {
+        playingAudioId,
+        audioBlob,
+        handlePlayAudio,
+        handleCloseAudioPlayer,
+    } = useAudioCache();
+
+    const onAudioError = (message: string) => {
+        setError(true);
+        setErrorMessage(message);
+        setTimeout(() => {
+            setError(false);
+            setErrorMessage('');
+        }, 5000);
+    };
     const [targetLanguage, setTargetLanguage] = useState<string>('');
     const [fileError, setFileError] = useState<boolean>(false);
     const [info, setInfo] = useState<string>('');
@@ -207,7 +228,7 @@ const SpeechToText = () => {
             const transcriptions: TranscriptionResult[] = response?.items?.map(
                 (item: SavedItem) => ({
                     id: item?.id,
-                    fromAudio: '',
+                    fromAudio: item?.audio_url || '',
                     selectedLanguage: item?.target_language || '',
                     toText: item?.content?.transcription || '',
                 })
@@ -395,7 +416,7 @@ const SpeechToText = () => {
                 <div className="w-full max-w-2xl md:w-full mx-auto mb-20">
                     <div className="w-full flex justify-between px-2 md:px-0 mb-2 md:mb-0">
                         <h3 className="text-xl font-bold text-card-foreground mb-6 text-left">
-                            Last 5 results
+                            Recent Transcriptions
                         </h3>
                         <Link to={'/transcriptions'}>
                             <Button>See All</Button>
@@ -407,17 +428,34 @@ const SpeechToText = () => {
                                 <TableHead>Audio File</TableHead>
                                 <TableHead>Target Language</TableHead>
                                 <TableHead>Transcribed Text</TableHead>
+                                <TableHead className="text-right">
+                                    Actions
+                                </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {transcriptionList.map((list) => (
-                                <TableRow key={list.id}>
+                                <TableRow key={list.id} className="group">
                                     <TableCell>
-                                        <ReactAudioPlayer
-                                            src={list.fromAudio}
-                                            controls
-                                            className="min-w-12"
-                                        />
+                                        {list.fromAudio ? (
+                                            <AudioPlayerWithCache
+                                                itemId={String(list.id)}
+                                                isPlaying={
+                                                    playingAudioId ===
+                                                    String(list.id)
+                                                }
+                                                onPlayToggle={() =>
+                                                    handlePlayAudio(
+                                                        String(list.id),
+                                                        onAudioError
+                                                    )
+                                                }
+                                            />
+                                        ) : (
+                                            <span className="text-sm text-muted-foreground">
+                                                No audio
+                                            </span>
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         {speechLanguageCodeToNameMap.get(
@@ -425,10 +463,29 @@ const SpeechToText = () => {
                                         )}
                                     </TableCell>
                                     <TableCell>{list.toText}</TableCell>
+                                    <TableCell className="text-right">
+                                        {list.fromAudio && (
+                                            <AudioDownloadButton
+                                                itemId={String(list.id)}
+                                                onError={onAudioError}
+                                            />
+                                        )}
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
+                    {audioBlob && playingAudioId && (
+                        <FloatingAudioPlayer
+                            audioBlob={audioBlob}
+                            displayText={
+                                transcriptionList.find(
+                                    (t) => String(t.id) === playingAudioId
+                                )?.toText
+                            }
+                            onClose={handleCloseAudioPlayer}
+                        />
+                    )}
                 </div>
             )}
         </>
