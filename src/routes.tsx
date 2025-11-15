@@ -3,7 +3,8 @@ import ErrorPage from './pages/ErrorPage';
 import Layout from './pages/Layout';
 import SpeechToText from './pages/transcription/SpeechToText';
 import AllTranscriptions from './pages/transcription/AllTranscriptions';
-import PronunciationAssesment from './pages/PronunciationAssesment';
+import PronunciationAssesment from './pages/pronunciation/PronunciationAssesment';
+import AllPronunciationAssessments from './pages/pronunciation/AllPronunciationAssessments';
 import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
 import ProfilePage from './pages/ProfilePage';
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
             {
                 path: '/pronunciation-assessment',
                 element: <PronunciationAssesment />,
+            },
+            {
+                path: '/pronunciation-assessments',
+                element: <AllPronunciationAssessments />,
             },
             { path: '/profile', element: <ProfilePage /> },
         ],
