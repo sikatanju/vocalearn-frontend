@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -48,6 +49,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import LoaderComponent from '@/components/LoaderComponent';
 
 interface TranscriptionItem {
     id: string;
@@ -70,6 +72,8 @@ const AllTranscriptions = () => {
     >([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [audioLoading, setAudioLoading] = useState<boolean>(false);
+    const [audioId, setAudioId] = useState<string | ''>('');
     const [error, setError] = useState<string>('');
     const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -86,7 +90,6 @@ const AllTranscriptions = () => {
     };
 
     useEffect(() => {
-        // Wait for auth to finish loading before checking authentication
         if (authLoading) {
             return;
         }
@@ -111,6 +114,24 @@ const AllTranscriptions = () => {
             setFilteredTranscriptions(filtered);
         }
     }, [searchQuery, transcriptions]);
+
+    const handleAudioLoading = (id: string) => {
+        if (audioId && audioId !== id) {
+            handleCloseAudioPlayer();
+            setAudioId(id);
+            handlePlayAudio(id);
+        }
+        if (playingAudioId === id) {
+            setAudioLoading(false);
+            return;
+        }
+        setAudioLoading(true);
+        setAudioId(id);
+    };
+
+    useEffect(() => {
+        if (playingAudioId === audioId) setAudioLoading(false);
+    }, [audioId, playingAudioId]);
 
     const fetchAllTranscriptions = async () => {
         setIsLoading(true);
@@ -358,7 +379,14 @@ const AllTranscriptions = () => {
                                             >
                                                 <TableCell>
                                                     {item.audioUrl ? (
-                                                        <div className="flex items-center gap-2">
+                                                        <div
+                                                            className="flex items-center gap-2"
+                                                            onClick={() =>
+                                                                handleAudioLoading(
+                                                                    item.id
+                                                                )
+                                                            }
+                                                        >
                                                             <AudioPlayerWithCache
                                                                 itemId={item.id}
                                                                 isPlaying={
@@ -420,7 +448,7 @@ const AllTranscriptions = () => {
                                                     {formatDate(item.createdAt)}
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <div className="flex items-center justify-end gap-2">
+                                                    <div className="flex items-center justify-end">
                                                         {item.audioUrl && (
                                                             <AudioDownloadButton
                                                                 itemId={item.id}
@@ -500,6 +528,12 @@ const AllTranscriptions = () => {
                         }
                         onClose={handleCloseAudioPlayer}
                     />
+                )}
+
+                {audioLoading && (
+                    <div className="w-full flex items-center justify-center">
+                        <LoaderComponent isLoading={audioLoading} />
+                    </div>
                 )}
 
                 {/* Stats Footer */}
